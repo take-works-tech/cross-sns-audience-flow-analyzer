@@ -23,9 +23,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        # See ci.yml: the Windows-written lockfile omits Linux native optional
-        # packages (npm/cli#4828), so `npm ci` would install an unusable tree.
-        run: npm install --no-audit --no-fund
+        run: npm ci
 
       - name: Install Playwright browsers (chromium only — keep CI light)
         run: npx playwright install --with-deps chromium
