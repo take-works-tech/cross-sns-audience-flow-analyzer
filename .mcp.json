@@ -1,0 +1,13 @@
+{
+  "_note": "Playwright MCP (Microsoft-official). DEV-TIME ONLY — NOT used in CI (CI uses scripts via .github/workflows/visual.yml). Equivalent install: claude mcp add playwright npx @playwright/mcp@latest. Canvas/WebGL? Add --caps=vision to args. Details: .claude/skills/webapp-testing/SKILL.md. MCP is dev-time only.",
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--caps=vision"
+      ]
+    }
+  }
+}

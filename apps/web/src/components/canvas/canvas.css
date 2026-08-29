@@ -1,0 +1,176 @@
+/* ============================================================================
+   Network canvas — restyles @xyflow/react onto the frozen "Calm Instrument"
+   tokens. Every rule is scoped under `.flow-canvas`, and every colour is a
+   token var. The two literals below are canvas-local values that have no
+   product-level token (the mockup's dot grid tint and timeline bar fill).
+   ========================================================================== */
+
+.flow-canvas {
+  --canvas-dot: rgba(140, 150, 180, 0.13);
+  --canvas-timeline-bar: #39415a;
+}
+
+/* --------------------------------------------------------------- surface -- */
+
+.flow-canvas .react-flow {
+  background: transparent;
+}
+
+/* the mockup dot grid sits at 50% opacity over the radial ground */
+.flow-canvas .react-flow__background {
+  opacity: 0.5;
+}
+
+.flow-canvas .react-flow__pane {
+  cursor: default;
+}
+.flow-canvas .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+.flow-canvas .react-flow__pane.selection {
+  cursor: crosshair;
+}
+
+.flow-canvas .react-flow__selection {
+  background: var(--color-accent-dim);
+  border: 1px solid var(--color-accent-line);
+  border-radius: 4px;
+}
+
+/* ----------------------------------------------------------------- nodes -- */
+
+.flow-canvas .react-flow__node {
+  cursor: pointer;
+}
+.flow-canvas .react-flow__node.dragging {
+  cursor: grabbing;
+}
+
+/* selection is driven by the store, not React Flow's own outline */
+.flow-canvas .react-flow__node.selected,
+.flow-canvas .react-flow__node:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.flow-canvas .react-flow__node-account:focus-visible,
+.flow-canvas .react-flow__node-post:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 5px;
+  border-radius: 999px;
+}
+.flow-canvas .react-flow__node-url:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 9px;
+}
+
+.flow-canvas .flow-node-core {
+  transition: filter 150ms var(--ease-out-custom);
+}
+.flow-canvas .react-flow__node:hover .flow-node-core {
+  filter: brightness(1.15);
+}
+
+.flow-canvas .flow-node-ring {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
+}
+
+/* --------------------------------------------------------------- handles -- */
+
+/* Quiet until the node is hovered / focused, so the connect affordance never
+   steals a click meant for selecting or dragging the node. */
+.flow-canvas .react-flow__handle {
+  width: 9px;
+  height: 9px;
+  min-width: 9px;
+  min-height: 9px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  border: 1.5px solid var(--color-page);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms var(--ease-out-custom);
+}
+.flow-canvas .react-flow__node:hover .react-flow__handle,
+.flow-canvas .react-flow__node:focus-within .react-flow__handle,
+.flow-canvas.is-connecting .react-flow__handle {
+  opacity: 1;
+  pointer-events: all;
+}
+.flow-canvas .react-flow__handle.connectingfrom,
+.flow-canvas .react-flow__handle.connectingto {
+  opacity: 1;
+  background: var(--color-accent-hover);
+}
+
+.flow-canvas .react-flow__connection-path {
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 5;
+  fill: none;
+}
+
+/* ----------------------------------------------------------------- edges -- */
+
+.flow-canvas .react-flow__edge {
+  cursor: pointer;
+}
+.flow-canvas .react-flow__edge:focus,
+.flow-canvas .react-flow__edge:focus-visible {
+  outline: none;
+}
+
+.flow-canvas .flow-edge {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke 150ms var(--ease-out-custom);
+}
+.flow-canvas .flow-edge--observed {
+  stroke: var(--color-edge-obs);
+}
+.flow-canvas .flow-edge--estimated {
+  stroke: var(--color-edge-est);
+  stroke-dasharray: 5 6;
+}
+.flow-canvas .flow-edge-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+}
+
+.flow-canvas .flow-edge-group:hover .flow-edge {
+  stroke: var(--color-edge-obs-hover);
+}
+
+/* selected always wins over hover */
+.flow-canvas .flow-edge-group .flow-edge--selected,
+.flow-canvas .flow-edge-group:hover .flow-edge--selected {
+  stroke: var(--color-accent);
+  filter: drop-shadow(0 0 6px var(--color-accent-glow));
+}
+
+.flow-canvas .flow-particles {
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------- spinner -- */
+
+.flow-spinner {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--color-line-2);
+  border-top-color: var(--color-accent);
+  animation: flow-spin 1s linear infinite;
+}
+
+@keyframes flow-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

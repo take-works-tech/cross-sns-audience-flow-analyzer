@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CT-008 EngineAPI",
+  "version": "1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "openapi_path", "openapi_version", "client_generator", "client_package", "frozen"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "openapi_path": { "const": "packages/contracts/openapi.yaml" },
+    "openapi_version": { "type": "string", "pattern": "^3\\.1(\\.[0-9]+)?$" },
+    "client_generator": { "const": "openapi-typescript" },
+    "client_package": { "type": "string" },
+    "frozen": { "type": "boolean" }
+  }
+}

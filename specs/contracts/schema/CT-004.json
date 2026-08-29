@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CT-004 Connection",
+  "version": "1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "platform", "account_label", "status", "scopes", "capability", "expires_at"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "id": { "type": "string", "format": "uuid" },
+    "platform": { "enum": ["youtube", "instagram", "tiktok", "x"] },
+    "account_label": { "type": "string" },
+    "status": { "enum": ["active", "expired"] },
+    "scopes": { "type": "array", "items": { "type": "string" } },
+    "capability": { "enum": ["observed", "estimated-only"] },
+    "expires_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

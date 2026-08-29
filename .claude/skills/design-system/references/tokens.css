@@ -1,0 +1,105 @@
+/* 264SF design tokens — FROZEN. Import into apps/web (Tailwind v4 @theme consumes these).
+ * Themes: :root = dark (default) · [data-theme="light"] · [data-theme="contrast"].
+ * Never hardcode a color/space/time literal in components — reference a token. */
+
+:root {
+  /* Surfaces (cool zinc, dark-first) */
+  --surface-0: oklch(0.16 0.012 250);   /* canvas ground */
+  --surface-1: oklch(0.20 0.012 250);   /* panels */
+  --surface-2: oklch(0.24 0.014 250);   /* raised: cards, inputs */
+  --surface-3: oklch(0.29 0.016 250);   /* overlays, menus */
+
+  --border-subtle: oklch(0.30 0.014 250);
+  --border-default: oklch(0.38 0.016 250);
+  --border-focus: var(--accent);
+
+  /* Text */
+  --text-1: oklch(0.93 0.005 250);      /* primary */
+  --text-2: oklch(0.72 0.010 250);      /* secondary */
+  --text-3: oklch(0.55 0.012 250);      /* meta/disabled */
+
+  /* Accent — the only vivid hue in chrome. Interactivity + Observed flow. */
+  --accent: oklch(0.78 0.14 210);       /* calm cyan */
+  --accent-hover: oklch(0.84 0.14 210);
+  --accent-muted: oklch(0.78 0.14 210 / 0.15);
+
+  /* Flow semantics */
+  --flow-observed: var(--accent);
+  --flow-estimated: oklch(0.62 0.03 250);   /* desaturated slate, always dashed */
+  --conf-high: 1;                            /* confidence → edge/particle opacity */
+  --conf-mid: 0.65;
+  --conf-low: 0.35;
+
+  /* Platform identity — node chips/border tints ONLY (never buttons/text/edges) */
+  --plat-youtube: oklch(0.58 0.22 27);
+  --plat-instagram: oklch(0.60 0.20 350);
+  --plat-tiktok: oklch(0.80 0.11 190);
+  --plat-x: oklch(0.85 0.005 250);
+  --plat-generic: oklch(0.65 0.05 250);      /* arbitrary URL nodes */
+
+  /* Status (sparing) */
+  --ok: oklch(0.72 0.15 155);
+  --warn: oklch(0.78 0.14 85);
+  --err: oklch(0.64 0.19 25);
+
+  /* Shape / depth */
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --radius-badge: 9999px;
+  --shadow-overlay: 0 8px 24px oklch(0 0 0 / 0.35);  /* overlays & drag ghosts only */
+
+  /* Motion */
+  --ease-out-custom: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 250ms;      /* hard cap for UI feedback: 300ms */
+  --stagger-node: 20ms;   /* canvas load reveal */
+
+  /* Type */
+  --font-sans: "Geist", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+}
+
+[data-theme="light"] {
+  --surface-0: oklch(0.97 0.004 250);
+  --surface-1: oklch(0.99 0.002 250);
+  --surface-2: oklch(1 0 0 / 0.9);
+  --surface-3: oklch(1 0 0);
+  --border-subtle: oklch(0.90 0.006 250);
+  --border-default: oklch(0.82 0.010 250);
+  --text-1: oklch(0.25 0.012 250);
+  --text-2: oklch(0.45 0.012 250);
+  --text-3: oklch(0.60 0.010 250);
+  --accent: oklch(0.58 0.13 220);
+  --accent-hover: oklch(0.52 0.13 220);
+  --accent-muted: oklch(0.58 0.13 220 / 0.12);
+  --flow-estimated: oklch(0.60 0.03 250);
+  --shadow-overlay: 0 8px 24px oklch(0.3 0.02 250 / 0.18);
+}
+
+[data-theme="contrast"] {
+  /* WCAG-max: pure surfaces, thicker semantics handled in components (2px borders, no opacity ramps) */
+  --surface-0: oklch(0.10 0 0);
+  --surface-1: oklch(0.13 0 0);
+  --surface-2: oklch(0.17 0 0);
+  --surface-3: oklch(0.22 0 0);
+  --border-subtle: oklch(0.45 0 0);
+  --border-default: oklch(0.60 0 0);
+  --text-1: oklch(0.98 0 0);
+  --text-2: oklch(0.85 0 0);
+  --text-3: oklch(0.72 0 0);
+  --accent: oklch(0.85 0.15 210);
+  --flow-estimated: oklch(0.75 0.02 250);
+  --conf-mid: 0.85;
+  --conf-low: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --stagger-node: 0ms;
+  }
+  /* Flow particles: components must swap to static dashed direction marks. */
+}

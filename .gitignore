@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnp.*
+
+# Next.js / build output
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment / secrets (see also .gitignore.secrets)
+.env
+.env.*
+!.env.example
+
+# Test / tooling artifacts
+coverage/
+playwright-report/
+test-results/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Third-party skills — other people's work under their own licence.
+# Install with: bash scripts/install-external-skills.sh
+.claude/skills/web-design-guidelines/
+.claude/skills/react-best-practices/
+.claude/skills/composition-patterns/

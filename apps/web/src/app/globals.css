@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   264SF "Calm Instrument" — frozen design tokens (dark-committed).
+   Source of truth: docs/mockups/ui-mockup.html + .claude/skills/design-system.
+   Never hardcode a colour / radius / easing literal in a component.
+   ========================================================================== */
+
+/* `static` = every token is always emitted as a CSS variable, even when no
+   utility references it — canvas/SVG code paints with var(--color-*) directly. */
+@theme static {
+  /* --- surfaces ---------------------------------------------------------- */
+  --color-page: #0d0f18;
+  --color-s0: #121420;
+  --color-s1: #181b28;
+  --color-s2: #1e2231;
+  --color-s3: #262b3d;
+
+  /* floating chrome (canvas tools, legend, timeline, pills) */
+  --color-panel-float: rgba(24, 27, 40, 0.9);
+  --color-panel-float-strong: rgba(24, 27, 40, 0.95);
+  --color-scrim: rgba(7, 8, 14, 0.62);
+
+  /* --- lines ------------------------------------------------------------- */
+  --color-line-1: #262b3b;
+  --color-line-2: #333a4f;
+  --color-line-3: #3f4763;
+
+  /* --- text -------------------------------------------------------------- */
+  --color-t1: #e8eaf2;
+  --color-t2: #a7adbf;
+  --color-t3: #6d7488;
+
+  /* --- accent (the only vivid hue in chrome) ----------------------------- */
+  --color-accent: #5ac8fa;
+  --color-accent-hover: #78d4fb;
+  --color-accent-dim: rgba(90, 200, 250, 0.14);
+  --color-accent-line: rgba(90, 200, 250, 0.35);
+  --color-accent-glow: rgba(90, 200, 250, 0.45);
+  --color-accent-ink: #0b1420;
+
+  /* --- flow -------------------------------------------------------------- */
+  --color-est: #5a6478;
+  --color-edge-obs: rgba(90, 200, 250, 0.42);
+  --color-edge-obs-hover: rgba(90, 200, 250, 0.75);
+  --color-edge-est: rgba(122, 132, 158, 0.38);
+  --color-particle-obs: #8ed9fb;
+  --color-particle-est: #7a849e;
+
+  /* --- platform identity (node chips / border tints ONLY) ---------------- */
+  --color-yt: #e5484d;
+  --color-ig: #d6409f;
+  --color-tt: #2dd4bf;
+  --color-x: #e7e9ee;
+  --color-com: #f0b429;
+  --color-gen: #8b93a7;
+  --color-yt-tint: rgba(229, 72, 77, 0.15);
+  --color-ig-tint: rgba(214, 64, 159, 0.15);
+  --color-tt-tint: rgba(45, 212, 191, 0.13);
+  --color-x-tint: rgba(231, 233, 238, 0.1);
+  --color-com-tint: rgba(240, 180, 41, 0.15);
+  --color-gen-tint: rgba(139, 147, 167, 0.14);
+
+  /* --- status (sparing) -------------------------------------------------- */
+  --color-ok: #3dd68c;
+  --color-warn: #f0b429;
+  --color-err: #e5484d;
+  --color-ok-line: rgba(61, 214, 140, 0.35);
+  --color-warn-line: rgba(240, 180, 41, 0.3);
+  --color-err-line: rgba(229, 72, 77, 0.32);
+  --color-warn-bg: rgba(240, 180, 41, 0.08);
+  --color-err-bg: rgba(229, 72, 77, 0.08);
+  --color-warn-ink: #f5cf7d;
+  --color-err-ink: #f1919b;
+
+  /* --- shape ------------------------------------------------------------- */
+  --radius-card: 8px;
+  --radius-ctl: 6px;
+  --radius-modal: 12px;
+  --radius-auth: 14px;
+
+  /* --- depth (overlays only) -------------------------------------------- */
+  --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-drawer: -12px 0 32px rgba(0, 0, 0, 0.35);
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.55);
+
+  /* --- motion ------------------------------------------------------------ */
+  --ease-out-custom: cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-skeleton: skeleton 1.4s linear infinite;
+
+  /* --- type -------------------------------------------------------------- */
+  --font-sans:
+    var(--font-geist-sans), var(--font-noto-sans-jp), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@keyframes skeleton {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================================================
+   base
+   ========================================================================== */
+
+@layer base {
+  html {
+    color-scheme: dark;
+    height: 100%;
+  }
+
+  body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--color-page);
+    color: var(--color-t1);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  svg {
+    display: block;
+  }
+
+  ::placeholder {
+    color: var(--color-t3);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+    border-radius: 4px;
+  }
+
+  /* thin, quiet scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-2) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-2);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-line-3);
+  }
+}
+
+/* ============================================================================
+   components — only what utilities cannot express (pseudo-elements on inputs)
+   ========================================================================== */
+
+@layer components {
+  .range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-s3);
+    outline-offset: 4px;
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: 2px solid var(--color-page);
+    cursor: pointer;
+  }
+  .range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--color-page);
+    border-radius: 50%;
+    background: var(--color-accent);
+    cursor: pointer;
+  }
+}
+
+/* ============================================================================
+   utilities
+   ========================================================================== */
+
+/* Every numeral in the product: monospaced + tabular so digits never jitter. */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Canvas ground: layered radial wash (never flat). */
+@utility canvas-ground {
+  background: radial-gradient(
+    1200px 700px at 46% 40%,
+    #171a29 0%,
+    #121420 55%,
+    #0f1119 100%
+  );
+}
+
+/* Centred stage used by /login and /onboarding. */
+@utility stage-ground {
+  background: radial-gradient(
+    1000px 600px at 50% 38%,
+    #171a29 0%,
+    #0f1119 70%
+  );
+}
+
+/* 26px dot grid overlay — apply to an inset, pointer-events-none layer. */
+@utility dot-grid {
+  background-image: radial-gradient(
+    rgba(140, 150, 180, 0.13) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
+}
+
+/* Shimmer placeholder. Skeletons, never spinners, for content. */
+@utility skel {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--color-s2) 25%,
+    var(--color-s3) 45%,
+    var(--color-s2) 65%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-skeleton);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

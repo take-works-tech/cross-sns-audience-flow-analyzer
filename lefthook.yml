@@ -1,0 +1,33 @@
+# Lefthook configuration for cross-sns-audience-flow-analyzer (TypeScript / JavaScript).
+# Install: `npm i -D lefthook lint-staged && npx lefthook install`
+# Lefthook chosen over Husky for language-agnostic configuration and parallel execution.
+# Output filename: `lefthook.yml` (despite the cckit blueprint slot name).
+pre-commit:
+  parallel: true
+  commands:
+    lint-staged:
+      run: npx lint-staged
+    tsc-noemit:
+      glob: "*.{ts,tsx}"
+      run: npx tsc -b --noEmit
+    detect-secrets:
+      run: |
+        if command -v detect-secrets >/dev/null 2>&1; then
+          detect-secrets-hook --baseline .secrets.baseline {staged_files}
+        else
+          echo "::warning::detect-secrets not installed; install with 'pip install detect-secrets'"
+          exit 0
+        fi
+
+commit-msg:
+  commands:
+    conventional-commit:
+      run: |
+        head -1 "$1" | grep -Eq '^(feat|fix|perf|docs|test|refactor|chore|build|ci)(\([^)]+\))?: .+' \
+          || { echo "Commit subject must follow Conventional Commits"; exit 1; }
+
+# Companion `.lintstagedrc.json` (create alongside lefthook.yml):
+# {
+#   "*.{ts,tsx,js,jsx}": ["eslint --max-warnings 0 --fix", "prettier --write"],
+#   "*.{json,md,yml,yaml}": ["prettier --write"]
+# }

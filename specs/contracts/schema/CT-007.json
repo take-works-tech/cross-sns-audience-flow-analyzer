@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CT-007 UrlClassification",
+  "version": "1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "input_url", "normalized_url", "platform", "resource_kind", "metadata"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "input_url": { "type": "string" },
+    "normalized_url": { "type": "string", "format": "uri" },
+    "platform": { "enum": ["youtube", "instagram", "tiktok", "x", null] },
+    "resource_kind": { "enum": ["account", "post", "video", "generic", "product", "site-top"] },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": { "enum": ["fetched", "pending", "failed"] },
+        "title": { "type": ["string", "null"] },
+        "thumbnail_url": { "type": ["string", "null"], "format": "uri" },
+        "source": { "enum": ["opengraph", "oembed", null] },
+        "reason": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

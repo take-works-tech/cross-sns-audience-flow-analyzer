@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CT-001 Node",
+  "version": "1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "project_id", "kind", "platform", "url_normalized", "title", "thumbnail", "placement", "metrics_summary"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "id": { "type": "string", "format": "uuid" },
+    "project_id": { "type": "string", "format": "uuid" },
+    "kind": { "enum": ["account", "post", "video", "generic", "product", "site-top"] },
+    "platform": { "enum": ["youtube", "instagram", "tiktok", "x", null] },
+    "url_normalized": { "type": "string", "format": "uri" },
+    "title": { "type": ["string", "null"] },
+    "thumbnail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": { "enum": ["fetched", "pending", "failed"] },
+        "url": { "type": ["string", "null"], "format": "uri" },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["placed", "position"],
+      "properties": {
+        "placed": { "type": "boolean" },
+        "position": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["x", "y"],
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" }
+          }
+        }
+      }
+    },
+    "metrics_summary": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "last_updated_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

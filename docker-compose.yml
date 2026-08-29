@@ -1,0 +1,67 @@
+# Generic development stack for cross-sns-audience-flow-analyzer.
+# Override via .env (loaded automatically). Adjust db_image / ports per project.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cross-sns-audience-flow-analyzer:dev
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app}
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-app}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - default
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - default
+
+  adminer:
+    image: adminer:latest
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8080"
+    networks:
+      - default
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: cross-sns-audience-flow-analyzer_default

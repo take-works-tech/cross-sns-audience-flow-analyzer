@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+  pull_request:
+  merge_group:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      # Self-test for generated hooks (dot-dirs are not collected by pytest default, so run explicitly)
+      - run: python -m unittest discover -s .claude/hooks -p "test_*.py" -v
+      # Reference integrity: every .claude artifact named by an instruction file must exist, and
+      # every hook must be registered. Catches "deleted it, but the references stayed" — which
+      # raises no error at runtime, it just quietly instructs the agent to use something gone.
+      - run: python scripts/validate/check_env_references.py
+      # Instruction-context budget: the always-injected layer is paid on every turn of every
+      # session, and it only ever grows. Both layers are charged, so path-scoping a rule is a trade
+      # between them rather than a way to make the number fall.
+      - run: python scripts/validate/check_context_budget.py
+      # Single source of truth: the same constant defined twice is the defect that survives review,
+      # because both definitions look right until one of them is edited.
+      - run: python scripts/validate/check_constant_duplication.py
+      # Ownership and dependency direction. Inert until the project declares its module map, and it
+      # says so rather than printing success over an unconfigured check; the script names the file.
+      - run: python scripts/validate/check_module_ownership.py
+      # Per-language lint/type gate (deterministic enforcement; unsupported languages emit a warning rather than silently passing green)
+      - run: npm ci && npx eslint . --max-warnings 0 && npx tsc --noEmit
+      # Project's own tests (until tests/ exists, emit an explicit warning rather than silently passing green)
+      - run: |
+          if [ -d tests ]; then npm test --silent; else echo "::warning::no tests/ yet - add tests (test-first)"; fi

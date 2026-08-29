@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CT-002 FlowEdge",
+  "version": "1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "project_id", "source_node_id", "target_node_id", "period", "type", "count", "rate", "confidence", "lag_hours", "origin"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "id": { "type": "string", "format": "uuid" },
+    "project_id": { "type": "string", "format": "uuid" },
+    "source_node_id": { "type": "string", "format": "uuid" },
+    "target_node_id": { "type": "string", "format": "uuid" },
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "string", "format": "date-time" },
+        "end": { "type": "string", "format": "date-time" }
+      }
+    },
+    "type": { "enum": ["observed", "estimated"] },
+    "count": { "type": ["integer", "null"], "minimum": 0 },
+    "rate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "lag_hours": { "type": ["number", "null"], "minimum": 0 },
+    "origin": { "enum": ["auto", "assist", "pinned"] },
+    "change_reason": { "type": ["string", "null"] }
+  }
+}

@@ -1,0 +1,924 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flow Analyzer UI モックアップ</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600;700&display=swap">
+<style>
+/* ============ 264SF "Calm Instrument" — dark-committed mockup ============ */
+:root{
+  --s0:#121420; --s1:#181b28; --s2:#1e2231; --s3:#262b3d;
+  --line-1:#262b3b; --line-2:#333a4f;
+  --t1:#e8eaf2; --t2:#a7adbf; --t3:#6d7488;
+  --accent:#5ac8fa; --accent-dim:rgba(90,200,250,.14); --accent-glow:rgba(90,200,250,.45);
+  --est:#5a6478;
+  --yt:#e5484d; --ig:#d6409f; --tt:#2dd4bf; --x:#e7e9ee; --com:#f0b429; --gen:#8b93a7;
+  --ok:#3dd68c; --warn:#f0b429; --err:#e5484d;
+  --r-card:8px; --r-ctl:6px;
+  --ease:cubic-bezier(.32,.72,0,1);
+  --sans:"Geist","Noto Sans JP",system-ui,sans-serif;
+  --mono:"Geist Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#0d0f18;color:var(--t1);font:14px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input{font:inherit;color:inherit}
+::placeholder{color:var(--t3)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:4px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+svg{display:block}
+
+/* ---------- mockup chrome: screen switcher ---------- */
+.mock-switch{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:99;
+  display:flex;gap:2px;padding:4px;background:rgba(13,15,24,.92);border:1px solid var(--line-2);
+  border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.5);backdrop-filter:none}
+.mock-switch button{padding:5px 11px;border-radius:999px;font-size:11.5px;color:var(--t2);white-space:nowrap;transition:all .15s var(--ease)}
+.mock-switch button:hover{color:var(--t1)}
+.mock-switch button[aria-current="true"]{background:var(--accent-dim);color:var(--accent)}
+.screen{display:none;height:100vh}
+.screen.on{display:flex;flex-direction:column}
+
+/* ---------- shared bits ---------- */
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.01em}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:500;border:1px solid var(--line-2);color:var(--t2)}
+.chip .dot{width:6px;height:6px;border-radius:50%}
+.chip.obs{color:var(--accent);border-color:rgba(90,200,250,.35);background:var(--accent-dim)}
+.chip.est{color:var(--t2);border-style:dashed}
+.chip.ok{color:var(--ok);border-color:rgba(61,214,140,.35)}
+.chip.warn{color:var(--warn);border-color:rgba(240,180,41,.35)}
+.chip.err{color:var(--err);border-color:rgba(229,72,77,.35)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:7px 14px;border-radius:var(--r-ctl);
+  border:1px solid var(--line-2);background:var(--s2);font-size:13px;font-weight:500;transition:all .15s var(--ease)}
+.btn:hover{background:var(--s3);border-color:#3f4763}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#0b1420;font-weight:600}
+.btn.pri:hover{background:#78d4fb}
+.btn.ghost{background:none;border-color:transparent;color:var(--t2)}
+.btn.ghost:hover{color:var(--t1);background:var(--s2)}
+.btn.danger{color:var(--err);border-color:rgba(229,72,77,.4)}
+.btn.sm{padding:4px 10px;font-size:12px}
+.field{display:flex;align-items:center;gap:8px;background:var(--s0);border:1px solid var(--line-2);border-radius:var(--r-ctl);padding:7px 10px;transition:border-color .15s var(--ease)}
+.field:focus-within{border-color:var(--accent)}
+.field input{background:none;border:0;outline:0;width:100%;font-size:13px}
+.seg{display:flex;background:var(--s0);border:1px solid var(--line-2);border-radius:var(--r-ctl);padding:2px}
+.seg button{padding:4px 10px;border-radius:4px;font-size:12px;color:var(--t2)}
+.seg button[aria-pressed="true"]{background:var(--s3);color:var(--t1)}
+.icon{width:16px;height:16px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sec-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--t3);text-transform:uppercase}
+.divider{height:1px;background:var(--line-1);margin:14px 0}
+.kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--t3)}
+
+/* ---------- app frame ---------- */
+.topbar{height:52px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--s1);border-bottom:1px solid var(--line-1)}
+.topbar .logo svg{width:22px;height:22px}
+.proj-switch{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:var(--r-ctl);font-weight:500}
+.proj-switch:hover{background:var(--s2)}
+.proj-switch .icon{width:13px;height:13px;color:var(--t3)}
+.topbar .field{width:250px}
+.autosave{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t3)}
+.autosave .dot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3d4663,#5a6478);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--t1)}
+.frame-body{flex:1;display:flex;min-height:0}
+
+/* left panel */
+.lpanel{width:272px;flex:none;background:var(--s1);border-right:1px solid var(--line-1);display:flex;flex-direction:column;overflow-y:auto;padding:14px;gap:16px}
+.conn-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-ctl);font-size:13px}
+.conn-row:hover{background:var(--s2)}
+.conn-row .plat{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex:none}
+.conn-row .st{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:5px;color:var(--t3)}
+.conn-row .st i{width:6px;height:6px;border-radius:50%;display:block}
+.node-item{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--r-ctl);font-size:12.5px;border:1px dashed transparent;cursor:grab}
+.node-item:hover{background:var(--s2);border-color:var(--line-2)}
+.node-item .sw{width:9px;height:9px;border-radius:3px;flex:none}
+.node-item .meta{color:var(--t3);font-size:11px;margin-left:auto}
+.tmpl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.tmpl-chips .chip{cursor:pointer}
+.tmpl-chips .chip:hover{border-color:var(--accent);color:var(--accent)}
+
+/* canvas */
+.canvas-wrap{flex:1;position:relative;min-width:0;background:
+  radial-gradient(1200px 700px at 46% 40%, #171a29 0%, #121420 55%, #0f1119 100%)}
+.canvas-wrap::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(140,150,180,.13) 1px, transparent 1px);background-size:26px 26px}
+#net{position:absolute;inset:0;width:100%;height:100%}
+.canvas-tools{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;gap:2px;padding:4px;background:rgba(24,27,40,.9);border:1px solid var(--line-2);border-radius:var(--r-card)}
+.canvas-tools button{width:30px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--t2)}
+.canvas-tools button:hover{background:var(--s3);color:var(--t1)}
+.canvas-tools button[aria-pressed="true"]{color:var(--accent);background:var(--accent-dim)}
+.canvas-tools .sep{height:1px;background:var(--line-2);margin:3px 4px}
+.legend{position:absolute;left:14px;bottom:56px;display:flex;flex-direction:column;gap:7px;padding:11px 13px;background:rgba(24,27,40,.9);border:1px solid var(--line-1);border-radius:var(--r-card);font-size:11.5px;color:var(--t2)}
+.legend .row{display:flex;align-items:center;gap:8px}
+.legend .ln{width:26px;height:0;border-top:2.5px solid var(--accent)}
+.legend .ln.est{border-top:2px dashed var(--est)}
+/* bottom:64px clears the mockup-only screen switcher; production uses 12px */
+.timeline{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);display:flex;align-items:center;gap:11px;padding:8px 14px;background:rgba(24,27,40,.92);border:1px solid var(--line-2);border-radius:999px}
+.timeline .track{position:relative;width:320px;height:22px}
+.timeline .bars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px}
+.timeline .bars i{flex:1;background:#39415a;border-radius:1px;display:block}
+.timeline .brush{position:absolute;top:-2px;bottom:-2px;left:58%;width:30%;border:1px solid var(--accent);background:rgba(90,200,250,.10);border-radius:4px}
+.timeline .lab{font-size:11px;color:var(--t3)}
+.recalc-pill{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:6px 14px;background:rgba(24,27,40,.95);border:1px solid var(--line-2);border-radius:999px;font-size:12px;color:var(--t2)}
+.recalc-pill.on{display:flex}
+.spinner{width:12px;height:12px;border-radius:50%;border:2px solid var(--line-2);border-top-color:var(--accent);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(1turn)}}
+
+/* SVG net */
+.edge{fill:none;stroke-linecap:round;cursor:pointer;transition:stroke .15s var(--ease)}
+.edge.obs{stroke:rgba(90,200,250,.42)}
+.edge.est{stroke:rgba(122,132,158,.38);stroke-dasharray:5 6}
+.edge:hover{stroke:rgba(90,200,250,.75)}
+.edge.sel{stroke:var(--accent);filter:drop-shadow(0 0 6px var(--accent-glow))}
+.edge-hit{fill:none;stroke:transparent;stroke-width:16;cursor:pointer}
+.pt{pointer-events:none}
+.node{cursor:pointer}
+.node .core{transition:filter .15s var(--ease)}
+.node:hover .core,.node.sel .core{filter:brightness(1.15)}
+.node.sel .ring{display:block}
+.node .ring{display:none;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:3 4}
+.nlabel{font-size:10.5px;fill:var(--t2);text-anchor:middle;font-family:var(--sans)}
+.nsub{font-size:9px;fill:var(--t3);text-anchor:middle;font-family:var(--mono)}
+.urlnode rect.core{rx:7}
+.urlnode text.ulabel{font-size:10.5px;fill:var(--t1);font-weight:500}
+.urlnode text.udom{font-size:8.5px;fill:var(--t3);font-family:var(--mono)}
+
+/* right panel */
+.rpanel{width:320px;flex:none;background:var(--s1);border-left:1px solid var(--line-1);display:flex;flex-direction:column;min-height:0}
+.rpanel .rhead{padding:13px 16px;border-bottom:1px solid var(--line-1);display:flex;align-items:center;gap:8px}
+.rpanel .rhead h2{font-size:13.5px;font-weight:600}
+.rpanel .rbody{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.rank-row{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--r-ctl);font-size:12.5px;cursor:pointer}
+.rank-row:hover{background:var(--s2)}
+.rank-row .idx{width:16px;color:var(--t3);font-size:11px}
+.rank-row .sw{width:10px;height:10px;border-radius:3px;flex:none}
+.rank-row .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-row .v{color:var(--t1)}
+.rank-row .d{width:52px;text-align:right;font-size:11px}
+.d.up{color:var(--ok)}.d.dn{color:var(--err)}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{background:var(--s0);border:1px solid var(--line-1);border-radius:var(--r-card);padding:10px 12px}
+.metric .k{font-size:11px;color:var(--t3);margin-bottom:3px}
+.metric .v{font-size:17px;font-weight:600}
+.metric .v small{font-size:11px;color:var(--t3);font-weight:400;margin-left:3px}
+.conf-bar{height:5px;border-radius:999px;background:var(--s3);overflow:hidden}
+.conf-bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.mini-list{display:flex;flex-direction:column}
+.mini-list .row{display:flex;align-items:center;gap:8px;padding:7px 2px;font-size:12.5px;border-bottom:1px solid var(--line-1)}
+.mini-list .row:last-child{border-bottom:0}
+.mini-list .sw{width:8px;height:8px;border-radius:2px}
+.mini-list .v{margin-left:auto;color:var(--t2);font-size:12px}
+.thumb{height:96px;border-radius:var(--r-card);background:linear-gradient(120deg,#2a1e33 0%,#3d2340 45%,#1e2a3d 100%);position:relative;border:1px solid var(--line-2)}
+.thumb .play{position:absolute;inset:0;margin:auto;width:34px;height:34px;border-radius:50%;background:rgba(13,15,24,.72);display:flex;align-items:center;justify-content:center}
+.spark{width:100%;height:56px}
+.spark .grid-l{stroke:var(--line-1);stroke-width:1}
+.spark .area{fill:url(#sparkFill)}
+.spark .ln{fill:none;stroke:var(--accent);stroke-width:1.8}
+.spark .pt-end{fill:var(--accent)}
+.why{font-size:12px;color:var(--t2);background:var(--s0);border:1px solid var(--line-1);border-left:2px solid var(--accent);border-radius:6px;padding:9px 11px;line-height:1.6}
+.rfoot{padding:12px 16px;border-top:1px solid var(--line-1);display:flex;gap:8px}
+
+/* slider */
+.ctl-row{display:flex;flex-direction:column;gap:7px}
+.ctl-row .top{display:flex;justify-content:space-between;font-size:12.5px}
+.ctl-row .top .val{color:var(--accent)}
+.range{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;background:var(--s3);outline-offset:4px}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #0d0f18;cursor:pointer}
+.toggle{position:relative;width:34px;height:19px;border-radius:999px;background:var(--s3);transition:background .15s var(--ease);flex:none}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--t2);transition:all .15s var(--ease)}
+.toggle[aria-pressed="true"]{background:var(--accent)}
+.toggle[aria-pressed="true"]::after{left:17px;background:#0b1420}
+.check-row{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:13px}
+.check-row .toggle{margin-left:auto}
+
+/* drawer & modal */
+.drawer{position:absolute;top:0;right:0;bottom:0;width:300px;background:var(--s1);border-left:1px solid var(--line-2);box-shadow:-12px 0 32px rgba(0,0,0,.35);padding:16px;display:none;flex-direction:column;gap:16px;overflow-y:auto;z-index:5}
+.drawer.on{display:flex}
+.overlay{position:fixed;inset:0;background:rgba(7,8,14,.62);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.on{display:flex}
+.modal{width:520px;max-width:92vw;max-height:86vh;overflow-y:auto;background:var(--s1);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.55)}
+.modal .mhead{padding:16px 20px;border-bottom:1px solid var(--line-1);display:flex;align-items:center}
+.modal .mhead h2{font-size:15px;font-weight:600}
+.modal .mhead .x{margin-left:auto;color:var(--t3)}
+.modal .mhead .x:hover{color:var(--t1)}
+.modal .mbody{padding:20px;display:flex;flex-direction:column;gap:14px}
+.plat-card{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--s2)}
+.plat-card .plat{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.plat-card .nm{font-weight:500}
+.plat-card .sub{font-size:11.5px;color:var(--t3)}
+.plat-card .act{margin-left:auto}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:var(--r-card);font-size:12.5px;line-height:1.55}
+.banner.warn{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.3);color:#f5cf7d}
+.banner.err{background:rgba(229,72,77,.08);border:1px solid rgba(229,72,77,.32);color:#f1919b}
+.url-preview{display:flex;gap:12px;padding:13px;border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--s2)}
+.url-preview .ph{width:72px;height:54px;border-radius:6px;background:linear-gradient(135deg,#243043,#1b2233);border:1px solid var(--line-2);flex:none}
+.field-err{font-size:12px;color:var(--err);display:flex;gap:6px;align-items:center}
+
+/* ---------- standalone screens ---------- */
+.center-stage{flex:1;display:flex;align-items:center;justify-content:center;position:relative;background:radial-gradient(1000px 600px at 50% 38%,#171a29 0%,#0f1119 70%)}
+.center-stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(140,150,180,.10) 1px,transparent 1px);background-size:26px 26px;pointer-events:none}
+.auth-card{position:relative;width:380px;background:var(--s1);border:1px solid var(--line-2);border-radius:14px;padding:34px 34px 28px;display:flex;flex-direction:column;gap:18px;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.auth-card h1{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.auth-card .sub{font-size:13px;color:var(--t2);margin-top:-10px}
+.auth-or{display:flex;align-items:center;gap:10px;color:var(--t3);font-size:11px}
+.auth-or::before,.auth-or::after{content:"";flex:1;height:1px;background:var(--line-1)}
+.onb-grid{display:grid;grid-template-columns:repeat(3,220px);gap:14px}
+.onb-card{background:var(--s1);border:1px solid var(--line-2);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:all .18s var(--ease)}
+.onb-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.onb-card .ic{width:36px;height:36px;border-radius:9px;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.onb-card h3{font-size:14px;font-weight:600}
+.onb-card p{font-size:12px;color:var(--t2);line-height:1.6}
+.page-scroll{flex:1;overflow-y:auto;background:var(--s0)}
+.page-inner{max-width:960px;margin:0 auto;padding:36px 32px 120px}
+.page-inner>h1{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
+.page-inner>.psub{color:var(--t2);font-size:13px;margin-bottom:26px}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.proj-card{background:var(--s1);border:1px solid var(--line-2);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .18s var(--ease)}
+.proj-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.proj-card .pv{height:120px;background:radial-gradient(400px 200px at 50% 50%,#1b2030,#141724);position:relative;border-bottom:1px solid var(--line-1)}
+.proj-card .pbody{padding:14px 16px}
+.proj-card h3{font-size:14px;font-weight:600;margin-bottom:3px}
+.proj-card .pmeta{font-size:11.5px;color:var(--t3);display:flex;gap:10px}
+.proj-card.new{display:flex;align-items:center;justify-content:center;min-height:196px;border-style:dashed;color:var(--t3);flex-direction:column;gap:8px}
+.proj-card.new:hover{color:var(--accent)}
+.set-sec{background:var(--s1);border:1px solid var(--line-1);border-radius:12px;padding:20px 22px;margin-bottom:16px}
+.set-sec h2{font-size:14px;font-weight:600;margin-bottom:14px}
+.set-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-1);font-size:13px}
+.set-row:last-child{border-bottom:0}
+.set-row .desc{color:var(--t3);font-size:11.5px}
+.set-row .end{margin-left:auto;display:flex;align-items:center;gap:10px}
+.theme-opt{display:flex;flex-direction:column;gap:7px;cursor:pointer;font-size:12px;color:var(--t2)}
+.theme-opt .sw-theme{width:104px;height:64px;border-radius:8px;border:2px solid var(--line-2);position:relative;overflow:hidden}
+.theme-opt[aria-pressed="true"] .sw-theme{border-color:var(--accent)}
+.theme-opt[aria-pressed="true"]{color:var(--accent)}
+.states-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.state-card{background:var(--s1);border:1px solid var(--line-1);border-radius:12px;padding:18px}
+.state-card>h3{font-size:12px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px}
+.skel{border-radius:6px;background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 45%,var(--s2) 65%);background-size:200% 100%;animation:sk 1.4s infinite linear}
+@keyframes sk{to{background-position:-200% 0}}
+.toast{display:inline-flex;align-items:center;gap:9px;padding:10px 16px;background:var(--s3);border:1px solid var(--line-2);border-radius:8px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.empty-mini{border:1px dashed var(--line-2);border-radius:8px;padding:22px;text-align:center;color:var(--t3);font-size:12.5px;line-height:1.7}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+
+<!-- ===================== SCREENS ===================== -->
+
+<!-- 1. login -->
+<section class="screen" data-sc="login">
+  <div class="center-stage">
+    <div class="auth-card">
+      <div class="logo" style="gap:10px">
+        <svg viewBox="0 0 24 24" width="26" height="26"><circle cx="6" cy="16" r="3.4" fill="#5ac8fa"/><circle cx="17" cy="6" r="2.6" fill="#d6409f"/><circle cx="18" cy="17" r="2.2" fill="#2dd4bf"/><path d="M8.8 14.2 15 7.8M9.2 16.6l6.6.3" stroke="#5a6478" stroke-width="1.3"/></svg>
+        <span style="font-size:16px">Flow Analyzer</span>
+      </div>
+      <h1>流入の構造を、<br>触って理解する。</h1>
+      <p class="sub">SNSとURLをつないで、オーディエンスの流れをネットワークで可視化します。</p>
+      <button class="btn" style="justify-content:center;padding:10px">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Google でログイン
+      </button>
+      <div class="auth-or">または</div>
+      <div class="field"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input placeholder="you@example.com" aria-label="メールアドレス"></div>
+      <button class="btn pri" style="justify-content:center" onclick="go('onboarding')">ログインリンクを送信</button>
+      <p style="font-size:11px;color:var(--t3);text-align:center">続行すると<a href="#" style="color:var(--t2)">利用規約</a>に同意したものとみなされます</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2. onboarding -->
+<section class="screen" data-sc="onboarding">
+  <div class="center-stage" style="flex-direction:column;gap:34px">
+    <div style="text-align:center;position:relative">
+      <h1 style="font-size:22px;font-weight:600;letter-spacing:-.01em">はじめてのプロジェクト</h1>
+      <p style="color:var(--t2);margin-top:6px">まだノードがありません。3つの方法で分析を始められます。</p>
+    </div>
+    <div class="onb-grid">
+      <div class="onb-card" onclick="go('connect')" role="button" tabindex="0">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M9 12h6M8 8a4 4 0 0 0 0 8h1M16 8a4 4 0 0 1 0 8h-1"/></svg></div>
+        <h3>SNSアカウントを連携</h3>
+        <p>YouTube / Instagram / TikTok / X を接続すると、アカウントと投稿がノードになります。</p>
+      </div>
+      <div class="onb-card" onclick="go('add-url')" role="button" tabindex="0">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        <h3>URLを追加</h3>
+        <p>商品ページやブログのURLを貼るだけで、流入先ノードを自動生成します。</p>
+      </div>
+      <div class="onb-card" onclick="go('main')" role="button" tabindex="0">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="m5 3 14 9-14 9V3z"/></svg></div>
+        <h3>サンプルデータで体験</h3>
+        <p>架空のクリエイターのデータで、Flowアニメーションと分析を試せます。</p>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--t3)">あとから設定 → 連携管理でいつでも追加できます</div>
+  </div>
+</section>
+
+<!-- 3-8. app frame (main / node / edge / filters / connect / add-url) -->
+<section class="screen" data-sc="app">
+  <header class="topbar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="6" cy="16" r="3.4" fill="#5ac8fa"/><circle cx="17" cy="6" r="2.6" fill="#d6409f"/><circle cx="18" cy="17" r="2.2" fill="#2dd4bf"/><path d="M8.8 14.2 15 7.8M9.2 16.6l6.6.3" stroke="#5a6478" stroke-width="1.3"/></svg>
+    </div>
+    <button class="proj-switch">メインSNS分析<svg class="icon" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="field"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input placeholder="ノード・接続を検索…" aria-label="検索"><span class="kbd">/</span></div>
+    <div style="flex:1"></div>
+    <div class="seg" role="group" aria-label="期間">
+      <button>7日</button><button aria-pressed="true">30日</button><button>90日</button><button>カスタム</button>
+    </div>
+    <button class="btn ghost sm" onclick="recalcDemo()"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>再計算</button>
+    <div class="autosave"><span class="dot"></span>自動保存 12:04</div>
+    <button class="btn ghost sm" onclick="go('settings')" aria-label="設定"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg></button>
+    <div class="avatar">YT</div>
+  </header>
+
+  <div class="frame-body">
+    <!-- left -->
+    <aside class="lpanel">
+      <div>
+        <div class="sec-label" style="margin-bottom:8px">SNS連携</div>
+        <div class="conn-row"><span class="plat" style="background:rgba(229,72,77,.15);color:var(--yt)"><svg class="icon" viewBox="0 0 24 24"><path d="m10 9 5 3-5 3V9z" fill="currentColor" stroke="none"/><rect x="3" y="6" width="18" height="12" rx="3"/></svg></span>Yuki Films<span class="st"><i style="background:var(--ok)"></i>接続済み</span></div>
+        <div class="conn-row"><span class="plat" style="background:rgba(214,64,159,.15);color:var(--ig)"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg></span>yuki.films<span class="st"><i style="background:var(--ok)"></i>接続済み</span></div>
+        <div class="conn-row" onclick="go('connect')"><span class="plat" style="background:rgba(45,212,191,.13);color:var(--tt)"><svg class="icon" viewBox="0 0 24 24"><path d="M14 4v9.5a4.5 4.5 0 1 1-3-4.24M14 4c.5 2.5 2 4 4.5 4.5"/></svg></span>@yukifilms<span class="st"><i style="background:var(--warn)"></i>要再認証</span></div>
+        <div class="conn-row" onclick="go('connect')"><span class="plat" style="background:rgba(231,233,238,.10);color:var(--x)"><svg class="icon" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></svg></span>X を連携<span class="st" style="color:var(--accent)">接続する</span></div>
+      </div>
+      <div>
+        <div class="sec-label" style="margin-bottom:8px">URLを追加</div>
+        <div class="field" onclick="go('add-url')" style="cursor:pointer"><svg class="icon" viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg><input placeholder="https:// を貼り付け" aria-label="URL"></div>
+      </div>
+      <div>
+        <div class="sec-label" style="margin-bottom:8px">未配置ノード <span class="num" style="color:var(--t3)">2</span></div>
+        <div class="node-item"><span class="sw" style="background:var(--com)"></span>Tripod Pro 商品ページ<span class="meta">EC</span></div>
+        <div class="node-item"><span class="sw" style="background:var(--yt)"></span>動画「照明の基礎」<span class="meta">YT</span></div>
+        <p style="font-size:11px;color:var(--t3);margin-top:6px">キャンバスへドラッグして配置</p>
+      </div>
+      <div>
+        <div class="sec-label" style="margin-bottom:8px">配置済み <span class="num" style="color:var(--t3)">16</span></div>
+        <div class="node-item" onclick="selectNode('yt')"><span class="sw" style="background:var(--yt)"></span>Yuki Films<span class="meta num">21.4K</span></div>
+        <div class="node-item" onclick="selectNode('yt-v1')"><span class="sw" style="background:var(--yt)"></span>Vlog #42 京都<span class="meta num">48.2K</span></div>
+        <div class="node-item" onclick="selectNode('ig')"><span class="sw" style="background:var(--ig)"></span>yuki.films<span class="meta num">12.9K</span></div>
+        <div class="node-item" onclick="selectNode('shop')"><span class="sw" style="background:var(--com)"></span>yukifilms.shop<span class="meta">EC</span></div>
+        <button class="btn ghost sm" style="margin-top:4px;color:var(--t3)">すべて表示<svg class="icon" viewBox="0 0 24 24" style="width:12px;height:12px"><path d="m6 9 6 6 6-6"/></svg></button>
+      </div>
+      <div>
+        <div class="sec-label" style="margin-bottom:8px">フィルタテンプレート</div>
+        <div class="tmpl-chips">
+          <span class="chip">EC導線のみ</span><span class="chip">Observedのみ</span><span class="chip">高信頼度</span><span class="chip">+ 保存</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- canvas -->
+    <div class="canvas-wrap" id="canvasWrap">
+      <svg id="net" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet" aria-label="流入ネットワーク図"></svg>
+      <div class="canvas-tools">
+        <button aria-label="ズームイン"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button aria-label="ズームアウト"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        <button aria-label="全体表示"><svg class="icon" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+        <div class="sep"></div>
+        <button aria-pressed="true" aria-label="オートレイアウト"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M10.8 7 6.3 15.7M13.2 7l4.5 8.7M7.5 18h9"/></svg></button>
+        <button aria-label="複数選択"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="4 3"/></svg></button>
+        <button id="ptToggle" aria-pressed="true" aria-label="Flowアニメーション" onclick="toggleParticles(this)"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg></button>
+      </div>
+      <div class="legend">
+        <div class="row"><span class="ln"></span>Observed（観測流入）</div>
+        <div class="row"><span class="ln est"></span>Estimated（推定流入）</div>
+        <div class="row" style="color:var(--t3)">太さ = 流入量 ・ 濃さ = 信頼度</div>
+      </div>
+      <div class="recalc-pill" id="recalcPill"><span class="spinner"></span>再計算中… 接続を更新しています</div>
+      <div class="timeline">
+        <button aria-label="期間再生"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="m6 4 14 8-14 8V4z"/></svg></button>
+        <div class="track"><div class="bars" id="tlBars"></div><div class="brush"></div></div>
+        <span class="lab num">7/30 – 8/29</span>
+      </div>
+
+      <!-- filter drawer -->
+      <div class="drawer" id="filterDrawer" aria-label="表示フィルタ">
+        <div style="display:flex;align-items:center">
+          <h2 style="font-size:14px;font-weight:600">表示フィルタ</h2>
+          <button class="btn ghost sm" style="margin-left:auto" onclick="go('main')" aria-label="閉じる"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="ctl-row">
+          <div class="top"><span>流入人数</span><span class="val num">≥ 50人</span></div>
+          <input type="range" class="range" min="0" max="500" value="50" aria-label="流入人数しきい値">
+        </div>
+        <div class="ctl-row">
+          <div class="top"><span>流入率</span><span class="val num">≥ 1.0%</span></div>
+          <input type="range" class="range" min="0" max="100" value="10" aria-label="流入率しきい値">
+        </div>
+        <div class="ctl-row">
+          <div class="top"><span>Confidence</span><span class="val num">≥ 0.40</span></div>
+          <input type="range" class="range" min="0" max="100" value="40" aria-label="信頼度しきい値">
+        </div>
+        <div class="divider" style="margin:2px 0"></div>
+        <div class="sec-label">流入種別</div>
+        <div class="check-row"><span class="chip obs">Observed</span>観測された流入<button class="toggle" aria-pressed="true" aria-label="Observed表示"></button></div>
+        <div class="check-row"><span class="chip est">Estimated</span>推定された流入<button class="toggle" aria-pressed="true" aria-label="Estimated表示"></button></div>
+        <div class="divider" style="margin:2px 0"></div>
+        <div class="sec-label">ノード種別</div>
+        <div class="check-row">アカウント<button class="toggle" aria-pressed="true" aria-label="アカウント表示"></button></div>
+        <div class="check-row">投稿・動画<button class="toggle" aria-pressed="true" aria-label="投稿表示"></button></div>
+        <div class="check-row">URL・商品<button class="toggle" aria-pressed="true" aria-label="URL表示"></button></div>
+        <div style="margin-top:auto;display:flex;gap:8px">
+          <button class="btn sm" style="flex:1">リセット</button>
+          <button class="btn pri sm" style="flex:1">テンプレとして保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- right panel: 3 variants -->
+    <aside class="rpanel">
+      <!-- ranking (default) -->
+      <div class="rvar" id="rv-rank" style="display:flex;flex-direction:column;min-height:0;flex:1">
+        <div class="rhead">
+          <h2>流入ランキング</h2>
+          <div class="seg" style="margin-left:auto"><button aria-pressed="true">流入先</button><button>流入元</button></div>
+        </div>
+        <div class="rbody" style="gap:2px">
+          <div class="rank-row" onclick="selectNode('prod1')"><span class="idx num">1</span><span class="sw" style="background:var(--com)"></span><span class="nm">Lens Filter Kit</span><span class="v num">1,284</span><span class="d up num">▲12.4%</span></div>
+          <div class="rank-row" onclick="selectNode('shop')"><span class="idx num">2</span><span class="sw" style="background:var(--com)"></span><span class="nm">yukifilms.shop</span><span class="v num">946</span><span class="d up num">▲8.1%</span></div>
+          <div class="rank-row" onclick="selectNode('yt-v1')"><span class="idx num">3</span><span class="sw" style="background:var(--yt)"></span><span class="nm">Vlog #42 京都</span><span class="v num">812</span><span class="d up num">▲21.9%</span></div>
+          <div class="rank-row" onclick="selectNode('blog')"><span class="idx num">4</span><span class="sw" style="background:var(--gen)"></span><span class="nm">ブログ: 機材まとめ</span><span class="v num">412</span><span class="d dn num">▼2.3%</span></div>
+          <div class="rank-row" onclick="selectNode('yt')"><span class="idx num">5</span><span class="sw" style="background:var(--yt)"></span><span class="nm">Yuki Films</span><span class="v num">388</span><span class="d up num">▲4.6%</span></div>
+          <div class="rank-row" onclick="selectNode('discord')"><span class="idx num">6</span><span class="sw" style="background:var(--gen)"></span><span class="nm">Discord コミュニティ</span><span class="v num">189</span><span class="d up num">▲4.0%</span></div>
+          <div class="rank-row" onclick="selectNode('ig')"><span class="idx num">7</span><span class="sw" style="background:var(--ig)"></span><span class="nm">yuki.films</span><span class="v num">154</span><span class="d dn num">▼1.1%</span></div>
+          <div class="divider"></div>
+          <div class="sec-label" style="margin-bottom:10px">トピック別トレンド</div>
+          <svg class="spark" viewBox="0 0 280 56" id="trendSpark"></svg>
+          <div style="display:flex;gap:12px;font-size:11px;color:var(--t3);margin-top:4px">
+            <span style="color:var(--accent)">— EC流入</span><span>— 全流入</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- node detail -->
+      <div class="rvar" id="rv-node" style="display:none;flex-direction:column;min-height:0;flex:1">
+        <div class="rhead">
+          <span class="sw" style="width:10px;height:10px;border-radius:3px;background:var(--yt)"></span>
+          <h2 id="nd-title">Vlog #42 京都で撮る</h2>
+          <button class="btn ghost sm" style="margin-left:auto" onclick="showPanel('rank')" aria-label="閉じる"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="rbody">
+          <div class="thumb"><span class="play"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="m8 5 10 7-10 7V5z" fill="currentColor" stroke="none"/></svg></span></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="chip"><span class="dot" style="background:var(--yt)"></span>YouTube 動画</span>
+            <span class="chip num">2026-08-12 公開</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><div class="k">再生数</div><div class="v num">48.2K</div></div>
+            <div class="metric"><div class="k">平均視聴時間</div><div class="v num">4:12</div></div>
+            <div class="metric"><div class="k">流入総量（30日）</div><div class="v num">1,832<small>人</small></div></div>
+            <div class="metric"><div class="k">流出総量</div><div class="v num">1,284<small>人</small></div></div>
+          </div>
+          <div>
+            <div class="sec-label" style="margin-bottom:8px">主な接続先</div>
+            <div class="mini-list">
+              <div class="row"><span class="sw" style="background:var(--com)"></span>Lens Filter Kit<span class="chip obs" style="font-size:10px">Observed</span><span class="v num">1,284人</span></div>
+              <div class="row"><span class="sw" style="background:var(--com)"></span>yukifilms.shop<span class="chip obs" style="font-size:10px">Observed</span><span class="v num">318人</span></div>
+              <div class="row"><span class="sw" style="background:var(--gen)"></span>ブログ: 機材まとめ<span class="chip est" style="font-size:10px">Estimated</span><span class="v num">~96人</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="sec-label" style="margin-bottom:8px">流入の推移（30日）</div>
+            <svg class="spark" viewBox="0 0 280 56" id="nodeSpark"></svg>
+          </div>
+          <div style="font-size:11px;color:var(--t3)">データ更新: 12:04 ・ YouTube Analytics API</div>
+        </div>
+        <div class="rfoot">
+          <button class="btn sm" style="flex:1">元の投稿を開く</button>
+          <button class="btn sm danger">非表示</button>
+        </div>
+      </div>
+
+      <!-- edge detail -->
+      <div class="rvar" id="rv-edge" style="display:none;flex-direction:column;min-height:0;flex:1">
+        <div class="rhead">
+          <h2>接続の詳細</h2>
+          <button class="btn ghost sm" style="margin-left:auto" onclick="showPanel('rank')" aria-label="閉じる"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="rbody">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12.5px">
+            <span class="chip"><span class="dot" style="background:var(--yt)"></span>Vlog #42 京都</span>
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--accent)"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
+            <span class="chip"><span class="dot" style="background:var(--com)"></span>Lens Filter Kit</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <span class="chip obs">Observed</span>
+            <span class="chip num">期間: 30日</span>
+            <span class="chip num">ラグ中央値 2.1h</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><div class="k">流入人数</div><div class="v num">1,284<small>人</small></div></div>
+            <div class="metric"><div class="k">流入率（再生比）</div><div class="v num">12.4<small>%</small></div></div>
+          </div>
+          <div class="ctl-row">
+            <div class="top"><span>Confidence</span><span class="val num">0.86 — 高</span></div>
+            <div class="conf-bar"><i style="width:86%"></i></div>
+            <div style="font-size:11px;color:var(--t3)">使用指標: YouTube外部リンククリック ・ UTM ・ 時系列相関</div>
+          </div>
+          <div>
+            <div class="sec-label" style="margin-bottom:8px">流入の推移</div>
+            <svg class="spark" viewBox="0 0 280 56" id="edgeSpark"></svg>
+          </div>
+          <div class="why">動画公開後2時間で商品ページへのクリックが通常の6.2倍に増加。概要欄リンクのクリックが主要因です。</div>
+        </div>
+        <div class="rfoot">
+          <button class="btn sm" style="flex:1">固定接続にする</button>
+          <button class="btn sm danger">切断</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- 9. projects -->
+<section class="screen" data-sc="projects">
+  <header class="topbar">
+    <div class="logo"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="6" cy="16" r="3.4" fill="#5ac8fa"/><circle cx="17" cy="6" r="2.6" fill="#d6409f"/><circle cx="18" cy="17" r="2.2" fill="#2dd4bf"/><path d="M8.8 14.2 15 7.8M9.2 16.6l6.6.3" stroke="#5a6478" stroke-width="1.3"/></svg><span>Flow Analyzer</span></div>
+    <div style="flex:1"></div>
+    <button class="btn ghost sm" onclick="go('settings')">設定</button>
+    <div class="avatar">YT</div>
+  </header>
+  <div class="page-scroll"><div class="page-inner">
+    <h1>プロジェクト</h1>
+    <p class="psub">分析の単位ごとにキャンバスを保存できます</p>
+    <div class="proj-grid">
+      <div class="proj-card" onclick="go('main')">
+        <div class="pv"><svg viewBox="0 0 280 120" width="100%" height="100%" class="pv-net" data-seed="1"></svg></div>
+        <div class="pbody"><h3>メインSNS分析</h3><div class="pmeta"><span class="num">16ノード ・ 14接続</span><span>2分前に更新</span></div></div>
+      </div>
+      <div class="proj-card" onclick="go('main')">
+        <div class="pv"><svg viewBox="0 0 280 120" width="100%" height="100%" class="pv-net" data-seed="2"></svg></div>
+        <div class="pbody"><h3>商品A 導線分析</h3><div class="pmeta"><span class="num">9ノード ・ 7接続</span><span>昨日</span></div></div>
+      </div>
+      <div class="proj-card" onclick="go('main')">
+        <div class="pv"><svg viewBox="0 0 280 120" width="100%" height="100%" class="pv-net" data-seed="3"></svg></div>
+        <div class="pbody"><h3>夏キャンペーン比較</h3><div class="pmeta"><span class="num">21ノード ・ 26接続</span><span>8/20</span></div></div>
+      </div>
+      <div class="proj-card new" role="button" tabindex="0">
+        <svg class="icon" viewBox="0 0 24 24" style="width:22px;height:22px"><path d="M12 5v14M5 12h14"/></svg>
+        新規プロジェクト
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 10. settings -->
+<section class="screen" data-sc="settings">
+  <header class="topbar">
+    <div class="logo"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="6" cy="16" r="3.4" fill="#5ac8fa"/><circle cx="17" cy="6" r="2.6" fill="#d6409f"/><circle cx="18" cy="17" r="2.2" fill="#2dd4bf"/><path d="M8.8 14.2 15 7.8M9.2 16.6l6.6.3" stroke="#5a6478" stroke-width="1.3"/></svg><span>Flow Analyzer</span></div>
+    <div style="flex:1"></div>
+    <button class="btn ghost sm" onclick="go('main')">キャンバスへ戻る</button>
+    <div class="avatar">YT</div>
+  </header>
+  <div class="page-scroll"><div class="page-inner" style="max-width:720px">
+    <h1>設定</h1>
+    <p class="psub">連携・表示・分析の既定値を管理します</p>
+
+    <div class="set-sec">
+      <h2>SNS連携の管理</h2>
+      <div class="set-row"><span class="plat" style="width:30px;height:30px;border-radius:8px;background:rgba(229,72,77,.15);color:var(--yt);display:flex;align-items:center;justify-content:center"><svg class="icon" viewBox="0 0 24 24"><path d="m10 9 5 3-5 3V9z" fill="currentColor" stroke="none"/><rect x="3" y="6" width="18" height="12" rx="3"/></svg></span><div>Yuki Films<div class="desc">YouTube ・ 読み取り + アナリティクス</div></div><div class="end"><span class="chip ok">接続済み</span><button class="btn sm">解除</button></div></div>
+      <div class="set-row"><span class="plat" style="width:30px;height:30px;border-radius:8px;background:rgba(214,64,159,.15);color:var(--ig);display:flex;align-items:center;justify-content:center"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.5"/></svg></span><div>yuki.films<div class="desc">Instagram ・ インサイト</div></div><div class="end"><span class="chip ok">接続済み</span><button class="btn sm">解除</button></div></div>
+      <div class="set-row"><span class="plat" style="width:30px;height:30px;border-radius:8px;background:rgba(45,212,191,.13);color:var(--tt);display:flex;align-items:center;justify-content:center"><svg class="icon" viewBox="0 0 24 24"><path d="M14 4v9.5a4.5 4.5 0 1 1-3-4.24M14 4c.5 2.5 2 4 4.5 4.5"/></svg></span><div>@yukifilms<div class="desc">TikTok ・ トークン期限切れ</div></div><div class="end"><span class="chip warn">要再認証</span><button class="btn pri sm">再認証</button></div></div>
+      <div class="set-row"><span class="plat" style="width:30px;height:30px;border-radius:8px;background:rgba(231,233,238,.10);color:var(--x);display:flex;align-items:center;justify-content:center"><svg class="icon" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></svg></span><div>X<div class="desc">未接続</div></div><div class="end"><button class="btn sm" onclick="go('connect')">接続</button></div></div>
+    </div>
+
+    <div class="set-sec">
+      <h2>表示テーマ</h2>
+      <div style="display:flex;gap:16px">
+        <button class="theme-opt" aria-pressed="true"><span class="sw-theme" style="background:#14161f"><span style="position:absolute;left:8px;top:8px;right:40px;bottom:8px;background:#1c1f29;border-radius:4px"></span><span style="position:absolute;right:8px;top:8px;width:26px;bottom:8px;background:#1c1f29;border-radius:4px"></span><span style="position:absolute;left:30%;top:45%;width:8px;height:8px;border-radius:50%;background:#5ac8fa;box-shadow:0 0 8px #5ac8fa"></span></span>ダーク（既定）</button>
+        <button class="theme-opt"><span class="sw-theme" style="background:#f4f5f8"><span style="position:absolute;left:8px;top:8px;right:40px;bottom:8px;background:#fff;border-radius:4px"></span><span style="position:absolute;right:8px;top:8px;width:26px;bottom:8px;background:#fff;border-radius:4px"></span><span style="position:absolute;left:30%;top:45%;width:8px;height:8px;border-radius:50%;background:#2b8fc7"></span></span>ライト</button>
+        <button class="theme-opt"><span class="sw-theme" style="background:#000"><span style="position:absolute;left:8px;top:8px;right:40px;bottom:8px;background:#111;border:1px solid #666;border-radius:4px"></span><span style="position:absolute;right:8px;top:8px;width:26px;bottom:8px;background:#111;border:1px solid #666;border-radius:4px"></span></span>ハイコントラスト</button>
+      </div>
+    </div>
+
+    <div class="set-sec">
+      <h2>アニメーション</h2>
+      <div class="set-row">Flowアニメーション<div class="end"><button class="toggle" aria-pressed="true" aria-label="Flowアニメーション"></button></div></div>
+      <div class="set-row"><div>強度<div class="desc">低スペック環境では自動的に軽量化されます</div></div><div class="end" style="width:180px"><input type="range" class="range" min="0" max="100" value="70" aria-label="アニメーション強度"></div></div>
+      <div class="set-row"><div>OSの視差効果軽減に従う<div class="desc">prefers-reduced-motion 有効時は静的表示</div></div><div class="end"><button class="toggle" aria-pressed="true" aria-label="reduced-motion連動"></button></div></div>
+    </div>
+
+    <div class="set-sec">
+      <h2>分析の既定値</h2>
+      <div class="set-row">流入人数しきい値<div class="end"><div class="field" style="width:110px"><input value="50" class="num" aria-label="流入人数しきい値"><span style="color:var(--t3);font-size:12px">人</span></div></div></div>
+      <div class="set-row">Confidence しきい値<div class="end"><div class="field" style="width:110px"><input value="0.40" class="num" aria-label="信頼度しきい値"></div></div></div>
+      <div class="set-row">データ自動更新<div class="end"><div class="seg"><button>15分</button><button aria-pressed="true">1時間</button><button>手動</button></div></div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 11. states catalog -->
+<section class="screen" data-sc="states">
+  <div class="page-scroll"><div class="page-inner">
+    <h1>状態カタログ</h1>
+    <p class="psub">実装時に参照するローディング・空・エラー・通知の設計</p>
+    <div class="states-grid">
+      <div class="state-card">
+        <h3>ローディング（スケルトン）</h3>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:10px;align-items:center"><span class="skel" style="width:26px;height:26px;border-radius:7px"></span><span class="skel" style="flex:1;height:12px"></span><span class="skel" style="width:48px;height:12px"></span></div>
+          <div style="display:flex;gap:10px;align-items:center"><span class="skel" style="width:26px;height:26px;border-radius:7px"></span><span class="skel" style="flex:1;height:12px"></span><span class="skel" style="width:48px;height:12px"></span></div>
+          <p style="font-size:11.5px;color:var(--t3)">スピナーは使わない。キャンバス内はノードのプレースホルダで表現。</p>
+        </div>
+      </div>
+      <div class="state-card">
+        <h3>キャンバス空状態</h3>
+        <div class="empty-mini">まだノードが配置されていません<br><span style="font-size:11.5px">左のパネルからURLを追加するか、ノードをドラッグしてください</span><br><button class="btn sm pri" style="margin-top:10px">サンプルで試す</button></div>
+      </div>
+      <div class="state-card">
+        <h3>URL入力エラー</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="field" style="border-color:var(--err)"><input value="htp://yukifilms" aria-label="URL"></div>
+          <div class="field-err"><svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>URLの形式が正しくありません。「https://」で始めてください。</div>
+        </div>
+      </div>
+      <div class="state-card">
+        <h3>連携切れバナー</h3>
+        <div class="banner warn"><svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;flex:none;margin-top:1px"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4m0 3h.01"/></svg><div>TikTokの認証が期限切れです。@yukifilms のデータは8/24以降更新されていません。<button style="color:var(--warn);text-decoration:underline;margin-left:4px">再認証する</button></div></div>
+      </div>
+      <div class="state-card">
+        <h3>トースト</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <span class="toast"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;color:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>プロジェクトを保存しました</span>
+          <span class="toast"><span class="spinner"></span>再計算中… <span style="color:var(--t3)">14接続を更新</span></span>
+        </div>
+      </div>
+      <div class="state-card">
+        <h3>メタデータ取得失敗（仮ノード）</h3>
+        <div class="url-preview">
+          <div class="ph" style="display:flex;align-items:center;justify-content:center;color:var(--t3)"><svg class="icon" viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg></div>
+          <div style="min-width:0">
+            <div style="font-weight:500;color:var(--t2)">タイトル未取得</div>
+            <div class="num" style="font-size:11px;color:var(--t3)">example-shop.stores.jp/items/…</div>
+            <button class="btn sm" style="margin-top:7px">再取得</button>
+          </div>
+        </div>
+      </div>
+      <div class="state-card">
+        <h3>ノードタイプ一覧</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <span class="chip"><span class="dot" style="background:var(--yt)"></span>YouTube</span>
+          <span class="chip"><span class="dot" style="background:var(--ig)"></span>Instagram</span>
+          <span class="chip"><span class="dot" style="background:var(--tt)"></span>TikTok</span>
+          <span class="chip"><span class="dot" style="background:var(--x)"></span>X</span>
+          <span class="chip"><span class="dot" style="background:var(--com)"></span>商品・EC</span>
+          <span class="chip"><span class="dot" style="background:var(--gen)"></span>一般URL</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t3);margin-top:12px">色は識別の補助。形状（円=SNS / 角丸カード=URL）とアイコンで一次判別する。</p>
+      </div>
+      <div class="state-card">
+        <h3>Confidence 表示</h3>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="ctl-row"><div class="top"><span>高</span><span class="val num">0.86</span></div><div class="conf-bar"><i style="width:86%"></i></div></div>
+          <div class="ctl-row"><div class="top"><span>中</span><span class="val num" style="color:var(--t2)">0.58</span></div><div class="conf-bar"><i style="width:58%;opacity:.65"></i></div></div>
+          <div class="ctl-row"><div class="top"><span>低</span><span class="val num" style="color:var(--t3)">0.31</span></div><div class="conf-bar"><i style="width:31%;opacity:.35"></i></div></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- modals (shared) -->
+<div class="overlay" id="ov-connect">
+  <div class="modal" role="dialog" aria-label="SNSアカウント連携">
+    <div class="mhead"><h2>SNSアカウントを連携</h2><button class="x" onclick="go('main')" aria-label="閉じる"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="mbody">
+      <div class="banner warn"><svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;flex:none;margin-top:1px"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4m0 3h.01"/></svg><div>TikTokの認証が期限切れです。再認証するまで新しいデータは取得されません。</div></div>
+      <div class="plat-card"><span class="plat" style="background:rgba(229,72,77,.15);color:var(--yt)"><svg class="icon" viewBox="0 0 24 24"><path d="m10 9 5 3-5 3V9z" fill="currentColor" stroke="none"/><rect x="3" y="6" width="18" height="12" rx="3"/></svg></span><div><div class="nm">YouTube</div><div class="sub">Yuki Films ・ Data + Analytics API</div></div><div class="act"><span class="chip ok">接続済み</span></div></div>
+      <div class="plat-card"><span class="plat" style="background:rgba(214,64,159,.15);color:var(--ig)"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg></span><div><div class="nm">Instagram</div><div class="sub">yuki.films ・ プロアカウントが必要</div></div><div class="act"><span class="chip ok">接続済み</span></div></div>
+      <div class="plat-card" style="border-color:rgba(240,180,41,.4)"><span class="plat" style="background:rgba(45,212,191,.13);color:var(--tt)"><svg class="icon" viewBox="0 0 24 24"><path d="M14 4v9.5a4.5 4.5 0 1 1-3-4.24M14 4c.5 2.5 2 4 4.5 4.5"/></svg></span><div><div class="nm">TikTok</div><div class="sub">@yukifilms ・ トークン期限切れ</div></div><div class="act"><button class="btn pri sm">再認証</button></div></div>
+      <div class="plat-card"><span class="plat" style="background:rgba(231,233,238,.10);color:var(--x)"><svg class="icon" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></svg></span><div><div class="nm">X</div><div class="sub">読み取り権限のみ ・ APIプラン準拠</div></div><div class="act"><button class="btn sm">接続する</button></div></div>
+      <p style="font-size:11.5px;color:var(--t3);line-height:1.7">連携では読み取り・アナリティクス権限のみを要求します。投稿や書き込みは行いません。トークンは暗号化して保管されます。</p>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-addurl">
+  <div class="modal" role="dialog" aria-label="URLからノードを追加">
+    <div class="mhead"><h2>URLからノードを追加</h2><button class="x" onclick="go('main')" aria-label="閉じる"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="mbody">
+      <div class="field"><svg class="icon" viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg><input value="https://yukifilms.shop/products/lens-filter-kit" aria-label="URL"></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2)"><svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px;color:var(--ok)"><path d="M20 6 9 17l-5-5"/></svg>解析完了 — 商品ページとして認識しました</div>
+      <div class="url-preview">
+        <div class="ph" style="background:linear-gradient(135deg,#3d3423,#2a2418)"></div>
+        <div style="min-width:0;flex:1">
+          <div style="font-weight:500">Lens Filter Kit — 4枚セット</div>
+          <div class="num" style="font-size:11px;color:var(--t3)">yukifilms.shop ・ ¥8,900</div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <span class="chip"><span class="dot" style="background:var(--com)"></span>商品ページ</span>
+            <span class="chip">OGP取得済み</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-label" style="margin-bottom:8px">追加先</div>
+        <div class="seg" style="width:fit-content"><button aria-pressed="true">未配置リストへ</button><button>キャンバス中央へ配置</button></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="go('main')">キャンセル</button>
+        <button class="btn pri" onclick="go('main')">ノードを追加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- mockup screen switcher -->
+<nav class="mock-switch" aria-label="モックアップ画面切替">
+  <button data-go="login">ログイン</button>
+  <button data-go="onboarding">初回</button>
+  <button data-go="main">メイン</button>
+  <button data-go="node">ノード詳細</button>
+  <button data-go="edge">接続詳細</button>
+  <button data-go="filters">フィルタ</button>
+  <button data-go="connect">SNS連携</button>
+  <button data-go="add-url">URL追加</button>
+  <button data-go="projects">プロジェクト</button>
+  <button data-go="settings">設定</button>
+  <button data-go="states">状態</button>
+</nav>
+
+<script>
+/* ---------- data ---------- */
+const C = {yt:'#e5484d', ig:'#d6409f', tt:'#2dd4bf', x:'#e7e9ee', com:'#f0b429', gen:'#8b93a7'};
+const NODES = [
+  {id:'yt',   x:480,y:300,r:30,c:'yt', label:'Yuki Films',    sub:'21.4K',  kind:'acc'},
+  {id:'ig',   x:790,y:430,r:25,c:'ig', label:'yuki.films',    sub:'12.9K',  kind:'acc'},
+  {id:'tt',   x:295,y:525,r:23,c:'tt', label:'@yukifilms',    sub:'8.1K',   kind:'acc'},
+  {id:'x',    x:645,y:165,r:20,c:'x',  label:'@yuki_films',   sub:'3.2K',   kind:'acc'},
+  {id:'yt-v1',x:565,y:435,r:16,c:'yt', label:'Vlog #42 京都', sub:'48.2K',  kind:'post'},
+  {id:'yt-v2',x:365,y:180,r:14,c:'yt', label:'機材紹介 2026', sub:'12.6K',  kind:'post'},
+  {id:'yt-s1',x:610,y:305,r:11,c:'yt', label:'ショート',      sub:'96K',    kind:'post'},
+  {id:'ig-r1',x:885,y:300,r:13,c:'ig', label:'リール 8/18',   sub:'22K',    kind:'post'},
+  {id:'ig-p1',x:865,y:555,r:11,c:'ig', label:'投稿 8/25',     sub:'3.4K',   kind:'post'},
+  {id:'tt-v1',x:175,y:405,r:13,c:'tt', label:'TikTok 8/15',   sub:'31K',    kind:'post'},
+  {id:'tt-v2',x:245,y:655,r:11,c:'tt', label:'TikTok 8/22',   sub:'12K',    kind:'post'},
+  {id:'x-p1', x:500,y:85, r:10,c:'x',  label:'ポスト 8/27',   sub:'41K',    kind:'post'},
+  {id:'shop', x:990,y:480,w:120,h:40,c:'com',label:'ショップTop', dom:'yukifilms.shop', kind:'url'},
+  {id:'prod1',x:1040,y:300,w:132,h:40,c:'com',label:'Lens Filter Kit',dom:'yukifilms.shop', kind:'url'},
+  {id:'blog', x:150,y:225,w:118,h:40,c:'gen',label:'機材まとめ記事',dom:'blog.yukifilms.jp', kind:'url'},
+  {id:'discord',x:895,y:665,w:108,h:40,c:'gen',label:'コミュニティ',dom:'discord.gg', kind:'url'},
+];
+const EDGES = [
+  {s:'yt-v1',t:'prod1',k:'obs',w:5,  conf:.86},
+  {s:'yt',   t:'shop', k:'obs',w:3.5,conf:.8},
+  {s:'yt-s1',t:'yt-v1',k:'obs',w:2.5,conf:.9},
+  {s:'ig',   t:'ig-r1',k:'obs',w:2,  conf:.85},
+  {s:'ig-r1',t:'shop', k:'est',w:3,  conf:.55},
+  {s:'tt',   t:'tt-v1',k:'obs',w:2,  conf:.85},
+  {s:'tt-v1',t:'yt',   k:'est',w:2.5,conf:.5},
+  {s:'x',    t:'x-p1', k:'obs',w:1.5,conf:.85},
+  {s:'x-p1', t:'blog', k:'obs',w:2,  conf:.75},
+  {s:'yt-v2',t:'blog', k:'est',w:1.5,conf:.45},
+  {s:'ig-p1',t:'discord',k:'est',w:1.5,conf:.4},
+  {s:'tt-v2',t:'shop', k:'est',w:2,  conf:.45},
+  {s:'yt',   t:'x',    k:'est',w:1.5,conf:.35},
+  {s:'shop', t:'prod1',k:'obs',w:2.5,conf:.9},
+];
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- build network svg ---------- */
+const svg = document.getElementById('net');
+const NS = 'http://www.w3.org/2000/svg';
+function el(n,attrs,parent){const e=document.createElementNS(NS,n);for(const k in attrs)e.setAttribute(k,attrs[k]);(parent||svg).appendChild(e);return e}
+const byId = Object.fromEntries(NODES.map(n=>[n.id,n]));
+function anchor(n){return n.kind==='url'?{x:n.x,y:n.y}:{x:n.x,y:n.y}}
+function edgePath(e){
+  const a=anchor(byId[e.s]), b=anchor(byId[e.t]);
+  const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+  const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1;
+  const off=Math.min(46,len*.18), nx=-dy/len*off, ny=dx/len*off;
+  return `M${a.x},${a.y} Q${mx+nx},${my+ny} ${b.x},${b.y}`;
+}
+// defs: arrow markers + glow
+const defs=el('defs',{});
+for(const [k,c] of [['obs','#5ac8fa'],['est','#7a849e']]){
+  const m=el('marker',{id:'arr-'+k,viewBox:'0 0 10 10',refX:'8',refY:'5',markerWidth:'7',markerHeight:'7',orient:'auto-start-reverse'},defs);
+  el('path',{d:'M0,1.5 L8,5 L0,8.5 z',fill:c,opacity:k==='obs'?'.8':'.55'},m);
+}
+const sparkGrad=el('linearGradient',{id:'sparkFill',x1:'0',y1:'0',x2:'0',y2:'1'},defs);
+el('stop',{offset:'0',
+  'stop-color':'rgba(90,200,250,.28)'},sparkGrad);
+el('stop',{offset:'1','stop-color':'rgba(90,200,250,0)'},sparkGrad);
+
+const gE=el('g',{});   // edges
+const gP=el('g',{class:'pt'}); // particles
+const gN=el('g',{});   // nodes
+const edgeEls={};
+EDGES.forEach((e,i)=>{
+  const d=edgePath(e);
+  const hit=el('path',{d,class:'edge-hit'},gE);
+  const p=el('path',{d,class:'edge '+e.k,'stroke-width':e.w,opacity:Math.max(.45,e.conf),'marker-end':`url(#arr-${e.k})`},gE);
+  edgeEls[i]=p;
+  const sel=()=>{ selectEdge(i) };
+  hit.addEventListener('click',sel); p.addEventListener('click',sel);
+  if(!reduced){
+    const n=e.k==='obs'?Math.max(2,Math.round(e.w)):1;
+    for(let j=0;j<n;j++){
+      const c=el('circle',{r:e.k==='obs'?2.1:1.6,fill:e.k==='obs'?'#8ed9fb':'#7a849e',opacity:e.k==='obs'?.9:.4},gP);
+      const am=el('animateMotion',{dur:(6.5-e.w*.7)+'s',repeatCount:'indefinite',path:d,begin:(j*(6.5-e.w*.7)/n)+'s'},c);
+    }
+  }
+});
+NODES.forEach(n=>{
+  const g=el('g',{class:'node'+(n.kind==='url'?' urlnode':''),'data-id':n.id,tabindex:'0',role:'button','aria-label':n.label},gN);
+  const col=C[n.c];
+  if(n.kind==='url'){
+    el('rect',{class:'ring',x:n.x-n.w/2-4,y:n.y-n.h/2-4,width:n.w+8,height:n.h+8,rx:'10'},g);
+    el('rect',{class:'core',x:n.x-n.w/2,y:n.y-n.h/2,width:n.w,height:n.h,rx:'7',fill:'#1e2231',stroke:col==='#f0b429'?'rgba(240,180,41,.55)':'rgba(139,147,167,.4)','stroke-width':'1'},g);
+    el('circle',{cx:n.x-n.w/2+13,cy:n.y,r:'3.5',fill:col},g);
+    const t1=el('text',{class:'ulabel',x:n.x-n.w/2+24,y:n.y-2},g); t1.textContent=n.label;
+    const t2=el('text',{class:'udom',x:n.x-n.w/2+24,y:n.y+11},g); t2.textContent=n.dom;
+  }else{
+    el('circle',{class:'ring',cx:n.x,cy:n.y,r:n.r+5},g);
+    el('circle',{cx:n.x,cy:n.y,r:n.r*1.9,fill:col,opacity:'0.07'},g);
+    el('circle',{class:'core',cx:n.x,cy:n.y,r:n.r,fill:'#181b28',stroke:col,'stroke-width':n.kind==='acc'?2:1.5,style:`filter:drop-shadow(0 0 ${n.r*.55}px ${col}66)`},g);
+    if(n.kind==='acc') el('circle',{cx:n.x,cy:n.y,r:n.r*.55,fill:col,opacity:'.85'},g);
+    else el('circle',{cx:n.x,cy:n.y,r:n.r*.4,fill:col,opacity:'.7'},g);
+    const t=el('text',{class:'nlabel',x:n.x,y:n.y+n.r+15},g); t.textContent=n.label;
+    const s=el('text',{class:'nsub',x:n.x,y:n.y+n.r+27},g); s.textContent=n.sub;
+  }
+  g.addEventListener('click',()=>selectNode(n.id));
+  g.addEventListener('keydown',ev=>{if(ev.key==='Enter')selectNode(n.id)});
+});
+
+/* ---------- sparklines & timeline ---------- */
+function spark(id,pts,accent=true){
+  const s=document.getElementById(id); if(!s)return; s.innerHTML='';
+  const W=280,H=56,max=Math.max(...pts);
+  const xy=pts.map((v,i)=>[i*(W/(pts.length-1)),H-6-(v/max)*(H-14)]);
+  const line=xy.map(p=>p.join(',')).join(' ');
+  for(let gy=12;gy<H;gy+=16) s.innerHTML+=`<line class="grid-l" x1="0" y1="${gy}" x2="${W}" y2="${gy}"/>`;
+  s.innerHTML+=`<polygon class="area" points="0,${H} ${line} ${W},${H}"/><polyline class="ln" points="${line}"/><circle class="pt-end" r="2.6" cx="${xy[xy.length-1][0]}" cy="${xy[xy.length-1][1]}"/>`;
+}
+const S1=[12,14,11,16,22,19,24,28,26,34,31,38,45,42,58,52,61,72,68,84,90,86,102,96,110,118,112,124,131,128];
+spark('trendSpark',S1); spark('nodeSpark',[4,6,5,9,8,14,12,18,26,22,38,64,58,49,42,36,31,28,24,26,22,19,18,16,15,14,12,13,11,12]);
+spark('edgeSpark',[2,3,2,5,4,8,7,12,22,18,34,58,52,44,38,31,26,24,20,22,18,16,15,13,12,11,10,11,9,10]);
+const tl=document.getElementById('tlBars');
+if(tl) S1.forEach(v=>{const i=document.createElement('i');i.style.height=(v/131*100)+'%';tl.appendChild(i)});
+
+/* project card mini nets */
+document.querySelectorAll('.pv-net').forEach(s=>{
+  const seed=+s.dataset.seed; let r=seed*97;
+  const rnd=()=> (r=(r*1103515245+12345)%2**31)/2**31;
+  const pts=Array.from({length:7+seed*2},()=>[20+rnd()*240,16+rnd()*88]);
+  let html='';
+  for(let i=0;i<pts.length-1;i++){ if(rnd()>.4) html+=`<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[i+1][0]}" y2="${pts[i+1][1]}" stroke="#333a4f" stroke-width="1"/>`; }
+  const cols=['#5ac8fa','#e5484d','#d6409f','#2dd4bf','#f0b429','#8b93a7'];
+  pts.forEach((p,i)=>{html+=`<circle cx="${p[0]}" cy="${p[1]}" r="${2+rnd()*3.4}" fill="${cols[i%6]}" opacity=".85"/>`});
+  s.innerHTML=html;
+});
+
+/* ---------- state & navigation ---------- */
+const SCREENS={login:'login',onboarding:'onboarding',main:'app',node:'app',edge:'app',filters:'app',connect:'app','add-url':'app',projects:'projects',settings:'settings',states:'states'};
+let current='main';
+function showPanel(which){
+  for(const v of ['rank','node','edge']) document.getElementById('rv-'+v).style.display = v===which?'flex':'none';
+}
+function clearSel(){
+  document.querySelectorAll('#net .node.sel').forEach(x=>x.classList.remove('sel'));
+  document.querySelectorAll('#net .edge.sel').forEach(x=>x.classList.remove('sel'));
+}
+function selectNode(id){
+  if(SCREENS[current]!=='app') go('main');
+  clearSel();
+  const g=document.querySelector(`#net .node[data-id="${id}"]`); if(g)g.classList.add('sel');
+  const n=byId[id]; if(n){document.getElementById('nd-title').textContent=n.label;}
+  showPanel('node'); setSwitch('node');
+}
+function selectEdge(i){
+  clearSel(); edgeEls[i].classList.add('sel');
+  showPanel('edge'); setSwitch('edge');
+}
+function setSwitch(name){
+  current=name;
+  document.querySelectorAll('.mock-switch button').forEach(b=>b.setAttribute('aria-current',b.dataset.go===name?'true':'false'));
+}
+function go(name){
+  const sec=SCREENS[name];
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.dataset.sc===sec));
+  document.getElementById('ov-connect').classList.toggle('on',name==='connect');
+  document.getElementById('ov-addurl').classList.toggle('on',name==='add-url');
+  document.getElementById('filterDrawer').classList.toggle('on',name==='filters');
+  if(sec==='app'&&(name==='main'||name==='connect'||name==='add-url'||name==='filters')){clearSel();showPanel('rank')}
+  if(name==='node')selectNode('yt-v1');
+  if(name==='edge')selectEdge(0);
+  setSwitch(name);
+}
+document.querySelectorAll('.mock-switch button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+document.addEventListener('keydown',e=>{
+  const keys=[...document.querySelectorAll('.mock-switch button')].map(b=>b.dataset.go);
+  const i=keys.indexOf(current);
+  if(e.key==='ArrowRight'&&i<keys.length-1)go(keys[i+1]);
+  if(e.key==='ArrowLeft'&&i>0)go(keys[i-1]);
+});
+function toggleParticles(btn){
+  const on=btn.getAttribute('aria-pressed')!=='true';
+  btn.setAttribute('aria-pressed',on);
+  gP.style.display=on?'':'none';
+}
+function recalcDemo(){
+  const p=document.getElementById('recalcPill'); p.classList.add('on');
+  setTimeout(()=>p.classList.remove('on'),1800);
+}
+go('main');
+</script>

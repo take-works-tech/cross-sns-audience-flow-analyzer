@@ -1,0 +1,59 @@
+# Language-agnostic .dockerignore for cross-sns-audience-flow-analyzer.
+# Keep the build context lean to maximise layer-cache hits and minimise image size.
+
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# Editor / IDE
+.idea
+.vscode
+*.swp
+.DS_Store
+
+# Environment / secrets (NEVER copy into image)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Build outputs
+build/
+dist/
+out/
+target/
+*.egg-info/
+*.whl
+
+# Dependency caches
+node_modules/
+.pnpm-store/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.tox/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.gradle/
+.kotlin/
+
+# Coverage / test artefacts
+coverage/
+.coverage
+htmlcov/
+.nyc_output/
+
+# CI / docs (not needed inside image)
+.github/
+docs/
+*.md
+!README.md
+
+# Docker meta (avoid recursive copy)
+Dockerfile*
+docker-compose*.yml
+.dockerignore

@@ -1,0 +1,13 @@
+{
+  "name": "cross-sns-audience-flow-analyzer",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "postCreateCommand": "npm ci",
+  "forwardPorts": []
+}

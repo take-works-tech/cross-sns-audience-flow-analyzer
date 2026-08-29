@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CT-006 RecalcJob",
+  "version": "1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "project_id", "trigger", "debounce_key", "status", "progress"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "id": { "type": "string", "format": "uuid" },
+    "project_id": { "type": "string", "format": "uuid" },
+    "trigger": {
+      "enum": [
+        "node_placed",
+        "edge_created",
+        "edge_removed",
+        "node_deleted",
+        "period_changed",
+        "threshold_changed",
+        "filter_changed",
+        "connection_data_updated"
+      ]
+    },
+    "debounce_key": { "type": "string" },
+    "status": { "enum": ["queued", "running", "succeeded", "failed"] },
+    "progress": { "type": "number", "minimum": 0, "maximum": 1 },
+    "edge_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["edge_id", "reason"],
+        "properties": {
+          "edge_id": { "type": "string", "format": "uuid" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "failure_reason": { "type": ["string", "null"] }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CT-005 MetricPoint",
+  "version": "1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "node_id", "metric", "ts", "value", "fetch_batch_id"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "node_id": { "type": "string", "format": "uuid" },
+    "metric": { "type": "string", "minLength": 1 },
+    "ts": { "type": "string", "format": "date-time" },
+    "value": { "type": "number" },
+    "fetch_batch_id": { "type": "string", "format": "uuid" }
+  }
+}
