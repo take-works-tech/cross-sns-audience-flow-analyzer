@@ -13,7 +13,10 @@ jobs:
           node-version: "22"
           cache: "npm"
       # npm workspaces: one lockfile at the root installs every package (apps/web today).
-      - run: npm ci
+      # `npm install`, not `npm ci`: the lockfile is written on Windows and npm records only the
+      # host platform's native optional packages in it (npm/cli#4828), so `npm ci` on Linux leaves
+      # rolldown without its binding and vitest cannot start. Versions still come from the lockfile.
+      - run: npm install --no-audit --no-fund
       # Self-test for generated hooks (dot-dirs are not collected by pytest default, so run explicitly)
       - run: python -m unittest discover -s .claude/hooks -p "test_*.py" -v
       # Reference integrity: every .claude artifact named by an instruction file must exist, and
