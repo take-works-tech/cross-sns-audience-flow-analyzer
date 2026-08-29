@@ -1,0 +1,25 @@
+{
+  "name": "cross-sns-audience-flow-analyzer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Visualize audience inflow between SNS accounts, posts and arbitrary URLs as an interactive network graph.",
+  "license": "MIT",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace apps/web",
+    "build": "npm run build --workspace apps/web",
+    "start": "npm run start --workspace apps/web",
+    "lint": "npm run lint --workspace apps/web -- --max-warnings 0",
+    "typecheck": "npm exec --workspace apps/web -- tsc --noEmit",
+    "test": "npm run test --workspace apps/web",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  },
+  "engines": {
+    "node": ">=20.9"
+  }
+}

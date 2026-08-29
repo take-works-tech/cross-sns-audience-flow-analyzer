@@ -44,3 +44,8 @@ Thumbs.db
 .claude/skills/web-design-guidelines/
 .claude/skills/react-best-practices/
 .claude/skills/composition-patterns/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/

@@ -1,6 +1,12 @@
-// Playwright config for cross-sns-audience-flow-analyzer — deterministic visual regression in CI.
+// Playwright config for cross-sns-audience-flow-analyzer — end-to-end smoke tests.
 // AI-driven exploration is handled separately by the Playwright MCP server (.mcp.json).
 import { defineConfig, devices } from "@playwright/test";
+
+// A dedicated port, not the framework default. On 3000 the runner will happily
+// attach to whatever unrelated dev server already holds the port and test that
+// instead, which fails in a way that looks like the app is broken.
+const PORT = Number(process.env.E2E_PORT ?? 3100);
+const BASE_URL = process.env.BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "./tests/visual",
@@ -12,15 +18,16 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? "github" : "html",
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL: BASE_URL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    // Target the workspace directly: `--` forwards the port to `next dev`.
+    command: `npm run dev --workspace apps/web -- --port ${PORT}`,
+    url: BASE_URL,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
   },
