@@ -12,11 +12,16 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-      # npm workspaces: one lockfile at the root installs every package (apps/web today).
-      # The lockfile is written on Windows, and npm records only the host platform's native
-      # optional packages in it (npm/cli#4828) - which is why apps/web depends on rolldown's
-      # wasm binding: it carries no os/cpu constraint, so it installs here too and vitest starts.
-      - run: npm ci
+      # npm workspaces: one install at the root covers every package (apps/web today).
+      #
+      # The lockfile is committed for local use, but it is NOT installed from here. npm records
+      # only the host platform's native optional packages in the lockfile (npm/cli#4828), and it
+      # is written on Windows, so installing from it on Linux yields a tree whose rolldown,
+      # lightningcss, oxide and swc have no binding - every one of them fails at run time.
+      # Resolving fresh is the documented way out. The cost is that transitive `^` ranges float
+      # on CI, so a dependency release can turn this red without a commit; the fix, when it
+      # matters enough, is a package manager whose lockfile is platform-complete (pnpm).
+      - run: rm -f package-lock.json && npm install --no-audit --no-fund
       # Self-test for generated hooks (dot-dirs are not collected by pytest default, so run explicitly)
       - run: python -m unittest discover -s .claude/hooks -p "test_*.py" -v
       # Reference integrity: every .claude artifact named by an instruction file must exist, and

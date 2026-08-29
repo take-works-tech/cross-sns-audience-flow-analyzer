@@ -23,7 +23,9 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        # Resolve fresh rather than installing from the lockfile - see ci.yml for why
+        # (npm/cli#4828: the Windows-written lockfile has no Linux native packages).
+        run: rm -f package-lock.json && npm install --no-audit --no-fund
 
       - name: Install Playwright browsers (chromium only — keep CI light)
         run: npx playwright install --with-deps chromium
